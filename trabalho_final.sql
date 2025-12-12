@@ -71,7 +71,9 @@ CREATE TABLE diagnostico (
     data_diagnostico DATE DEFAULT CURRENT_DATE
 );
 
+
 -- POVOAMENTO
+
 
 INSERT INTO paciente (nome, data_nascimento, sexo, cpf, rua, bairro, cidade, estado)
 SELECT
@@ -145,11 +147,8 @@ SELECT
 FROM generate_series(1,320) gs;
 
 
+-- CONSULTAS
 
-
-------------------------------------------------------------
--- 3. CONSULTAS
-------------------------------------------------------------
 
 SELECT p.id_paciente, p.nome, COUNT(f.id_ficha) AS total_fichas
 FROM paciente p
