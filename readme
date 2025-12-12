@@ -1,12 +1,12 @@
-Trabalho Final de Banco de Dados – Etapa 2  
-Disciplina: Banco de Dados  
-Curso: Análise e Desenvolvimento de Sistemas  
-Professor: Adeilson Aragão  
-Alunos: João Victor, Bruno Jerônimo  
+# Trabalho Final de Banco de Dados – Etapa 2  
+### Disciplina: Banco de Dados  
+### Curso: Análise e Desenvolvimento de Sistemas  
+### Professor: Adeilson Aragão  
+### Alunos: João Victor, Bruno Jerônimo  
 
 ---
 
-Descrição do Projeto
+## Descrição do Projeto
 Este repositório contém a implementação completa da **Etapa 2** do Trabalho Final da disciplina de Banco de Dados.  
 O objetivo foi desenvolver o modelo relacional referente ao sistema de atendimento hospitalar construído na Etapa 1, incluindo:
 
@@ -19,9 +19,9 @@ Todo o trabalho foi desenvolvido em **PostgreSQL**.
 
 ---
 
-Estrutura do Banco de Dados
+## Estrutura do Banco de Dados
 
-Entidades Criadas
+## *Entidades Criadas*
 - Paciente  
 - Hospital  
 - Profissional (triagem)  
@@ -35,14 +35,14 @@ Essas entidades seguem exatamente o diagrama conceitual e lógico apresentado na
 
 ---
 
-Tecnologias Utilizadas
+## Tecnologias Utilizadas
 - PostgreSQL 15+  
 - pgAdmin 4  
 - SQL (DDL, DML e DQL)  
 
 ---
 
-Povoamento
+## Povoamento (DML)
 O banco foi povoado utilizando `generate_series()` e regras lógicas que garantem:  
 - Nomes, datas e informações realistas  
 - Diversidade de valores  
@@ -51,7 +51,7 @@ O banco foi povoado utilizando `generate_series()` e regras lógicas que garante
 
 ---
 
-Consultas SQL Criadas
+## Consultas SQL Criadas
 
 SELECT p.id_paciente, p.nome, COUNT(f.id_ficha) AS total_fichas
 FROM paciente p
@@ -60,8 +60,7 @@ GROUP BY p.id_paciente, p.nome
 HAVING COUNT(f.id_ficha) > 2
 ORDER BY total_fichas DESC;
 
-SELECT fe.id_fila, fe.nome_paciente, fe.nivel_urgencia,
-       t.horario, pr.nome AS profissional
+SELECT fe.id_fila, fe.nome_paciente, fe.nivel_urgencia, t.horario, pr.nome AS profissional
 FROM fila_espera fe
 LEFT JOIN triagem t ON t.id_paciente = fe.id_paciente
 LEFT JOIN profissional pr ON pr.id_profissional = t.id_profissional
