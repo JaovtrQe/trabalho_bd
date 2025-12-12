@@ -71,9 +71,7 @@ CREATE TABLE diagnostico (
     data_diagnostico DATE DEFAULT CURRENT_DATE
 );
 
---------------------------------------------------------
--- POVOAMENTO CORRIGIDO (SEM ARRAYS)
---------------------------------------------------------
+-- POVOAMENTO
 
 INSERT INTO paciente (nome, data_nascimento, sexo, cpf, rua, bairro, cidade, estado)
 SELECT
