@@ -1,0 +1,128 @@
+Trabalho Final de Banco de Dados – Etapa 2  
+Disciplina: Banco de Dados  
+Curso: Análise e Desenvolvimento de Sistemas  
+Professor: Adeilson Aragão  
+Alunos: João Victor, Bruno Jerônimo  
+
+---
+
+Descrição do Projeto
+Este repositório contém a implementação completa da **Etapa 2** do Trabalho Final da disciplina de Banco de Dados.  
+O objetivo foi desenvolver o modelo relacional referente ao sistema de atendimento hospitalar construído na Etapa 1, incluindo:
+
+- Criação das tabelas seguindo o MER e DER definidos anteriormente  
+- Povoamento realista com mais de **100 tuplas por tabela**  
+- Criação de **10 consultas SQL úteis**, conforme exigido no enunciado  
+- Utilização de `JOIN`, `GROUP BY`, `HAVING`, subconsultas, `EXISTS`, `IN`, `ALL`, `ANY` e funções agregadas  
+
+Todo o trabalho foi desenvolvido em **PostgreSQL**.
+
+---
+
+Estrutura do Banco de Dados
+
+Entidades Criadas
+- Paciente  
+- Hospital  
+- Profissional (triagem)  
+- Médico  
+- Ficha do Paciente  
+- Triagem  
+- Fila de Espera  
+- Diagnóstico  
+
+Essas entidades seguem exatamente o diagrama conceitual e lógico apresentado na Etapa 1.
+
+---
+
+Tecnologias Utilizadas
+- PostgreSQL 15+  
+- pgAdmin 4  
+- SQL (DDL, DML e DQL)  
+
+---
+
+Povoamento
+O banco foi povoado utilizando `generate_series()` e regras lógicas que garantem:  
+- Nomes, datas e informações realistas  
+- Diversidade de valores  
+- Distribuição uniforme de dados entre as entidades  
+- Quantidades mínimas exigidas (100+ tuplas por tabela)
+
+---
+
+Consultas SQL Criadas
+
+SELECT p.id_paciente, p.nome, COUNT(f.id_ficha) AS total_fichas
+FROM paciente p
+JOIN ficha_paciente f ON f.id_paciente = p.id_paciente
+GROUP BY p.id_paciente, p.nome
+HAVING COUNT(f.id_ficha) > 2
+ORDER BY total_fichas DESC;
+
+SELECT fe.id_fila, fe.nome_paciente, fe.nivel_urgencia,
+       t.horario, pr.nome AS profissional
+FROM fila_espera fe
+LEFT JOIN triagem t ON t.id_paciente = fe.id_paciente
+LEFT JOIN profissional pr ON pr.id_profissional = t.id_profissional
+ORDER BY fe.data_entrada DESC;
+
+SELECT m.especialidade, COUNT(d.id_diagnostico) AS total
+FROM diagnostico d
+JOIN medico m ON m.id_medico = d.id_medico
+GROUP BY m.especialidade
+ORDER BY total DESC;
+
+SELECT f.id_ficha, p.nome, f.data_atendimento
+FROM ficha_paciente f
+JOIN paciente p ON p.id_paciente = f.id_paciente
+LEFT JOIN diagnostico d ON d.id_ficha = f.id_ficha
+WHERE d.id_diagnostico IS NULL;
+
+SELECT m.id_medico, m.nome, COUNT(d.id_diagnostico) AS qtd
+FROM medico m
+JOIN diagnostico d ON d.id_medico = m.id_medico
+GROUP BY m.id_medico, m.nome
+HAVING COUNT(d.id_diagnostico) > 5
+ORDER BY qtd DESC;
+
+SELECT p.id_paciente, p.nome
+FROM paciente p
+WHERE EXISTS (
+    SELECT 1
+    FROM ficha_paciente f
+    JOIN diagnostico d ON d.id_ficha = f.id_ficha
+    WHERE f.id_paciente = p.id_paciente
+);
+
+SELECT id_paciente, nome
+FROM paciente
+WHERE id_paciente IN (
+    SELECT id_paciente
+    FROM ficha_paciente
+    WHERE id_hospital IN (
+        SELECT id_hospital FROM hospital WHERE cidade = 'Fortaleza'
+    )
+);
+
+SELECT p.id_paciente, p.nome, EXTRACT(YEAR FROM AGE(p.data_nascimento)) AS idade
+FROM paciente p
+WHERE EXTRACT(YEAR FROM AGE(p.data_nascimento)) >= ALL (
+    SELECT EXTRACT(YEAR FROM AGE(data_nascimento)) FROM paciente
+);
+
+SELECT id_ficha, nivel_atendimento, data_atendimento
+FROM ficha_paciente
+WHERE nivel_atendimento = ANY (ARRAY['Alto','Médio'])
+ORDER BY data_atendimento DESC;
+
+SELECT h.id_hospital, h.nome, h.cidade, x.total_fichas
+FROM hospital h
+JOIN (
+    SELECT id_hospital, COUNT(*) AS total_fichas
+    FROM ficha_paciente
+    GROUP BY id_hospital
+) x ON x.id_hospital = h.id_hospital
+ORDER BY total_fichas DESC
+LIMIT 5;
+
